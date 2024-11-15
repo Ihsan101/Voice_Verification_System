@@ -6,25 +6,20 @@ import librosa
 import tkinter.messagebox as messagebox
 
 
-# Load the trained model
 model = tf.keras.models.load_model("final_models/voice_verification_model.h5")
 
-# Set sample rate and duration for recording
 sr = 16000
 duration = 3
 
-# Function to record audio using sounddevice
 def record_audio(duration, sample_rate):
     audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='float32')
-    sd.wait()  # Wait until recording is finished
-    return np.squeeze(audio)  # Remove single-dimensional entries
+    sd.wait()
+    return np.squeeze(audio) 
 
-# Preprocess the recorded audio for the model
 def preprocess_audio(audio, sample_rate):
     mel_spec = librosa.feature.melspectrogram(y=audio, sr=sample_rate, n_mels=128, fmax=8000)
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
 
-    # Pad or crop to a fixed size
     if mel_spec_db.shape[1] < 94:
         mel_spec_db = np.pad(mel_spec_db, ((0, 0), (0, 94 - mel_spec_db.shape[1])), mode='constant')
     else:
